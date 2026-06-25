@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CartShare — Shop Together</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== LOGIN SCREEN ===== -->
+  <div id="screen-login" class="screen active">
+    <div class="login-wrap">
+      <div class="brand">
+        <span class="brand-icon"><i class="fa-solid fa-cart-shopping"></i></span>
+        <h1>CartShare</h1>
+        <p class="tagline">Shop together. Split fairly.</p>
+      </div>
+
+      <div class="card login-card">
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label">Your Name</label>
+            <input type="text" id="input-name" class="form-control" placeholder="e.g. Priya" maxlength="30" />
+          </div>
+
+          <hr class="my-4" />
+
+          <div class="mb-3">
+            <label class="form-label">Create a New Room</label>
+            <button id="btn-create-room" class="btn btn-primary w-100">
+              <i class="fa-solid fa-plus me-2"></i>Create Room
+            </button>
+          </div>
+
+          <div class="divider-text">or join an existing one</div>
+
+          <div class="input-group mt-3">
+            <input type="text" id="input-room-code" class="form-control" placeholder="Enter Room Code" maxlength="8" style="text-transform:uppercase" />
+            <button id="btn-join-room" class="btn btn-outline-primary">Join</button>
+          </div>
+
+          <div id="login-error" class="alert alert-danger mt-3 d-none"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MAIN APP SCREEN ===== -->
+  <div id="screen-app" class="screen">
+
+    <!-- Navbar -->
+    <nav class="app-nav">
+      <div class="nav-brand">
+        <i class="fa-solid fa-cart-shopping"></i>
+        <span>CartShare</span>
+      </div>
+      <div class="nav-room-info">
+        <span class="room-label">Room</span>
+        <span id="display-room-code" class="room-code"></span>
+        <button id="btn-copy-code" class="btn-icon" title="Copy room code">
+          <i class="fa-regular fa-copy"></i>
+        </button>
+      </div>
+      <div class="nav-user">
+        <span id="display-username" class="username-badge"></span>
+        <button id="btn-leave-room" class="btn-icon text-danger" title="Leave room">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main Layout -->
+    <div class="app-layout container-fluid">
+      <div class="row g-3 h-100">
+
+        <!-- Left: Add Item + Cart -->
+        <div class="col-lg-7 d-flex flex-column">
+
+          <!-- Threshold progress bar -->
+          <div class="threshold-bar card mb-3">
+            <div class="card-body py-2">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="threshold-label">
+                  <i class="fa-solid fa-truck-fast me-1"></i>Free shipping at <strong>₹750</strong>
+                </span>
+                <span id="threshold-status" class="threshold-status"></span>
+              </div>
+              <div class="progress" style="height:8px">
+                <div id="threshold-progress" class="progress-bar" role="progressbar" style="width:0%"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Add Item Form -->
+          <div class="card mb-3">
+            <div class="card-header">
+              <i class="fa-solid fa-circle-plus me-2"></i>Add Item to Cart
+            </div>
+            <div class="card-body">
+              <div class="row g-2">
+                <div class="col-sm-5">
+                  <input type="text" id="input-item-name" class="form-control" placeholder="Item name (e.g. Milk)" maxlength="50" />
+                </div>
+                <div class="col-sm-3">
+                  <div class="input-group">
+                    <span class="input-group-text">₹</span>
+                    <input type="number" id="input-item-price" class="form-control" placeholder="Price" min="0" step="0.01" />
+                  </div>
+                </div>
+                <div class="col-sm-2">
+                  <input type="number" id="input-item-qty" class="form-control" placeholder="Qty" min="1" value="1" />
+                </div>
+                <div class="col-sm-2">
+                  <button id="btn-add-item" class="btn btn-primary w-100">
+                    <i class="fa-solid fa-plus"></i>
+                  </button>
+                </div>
+              </div>
+              <div id="item-error" class="alert alert-danger mt-2 d-none"></div>
+            </div>
+          </div>
+
+          <!-- Cart Table -->
+          <div class="card flex-grow-1">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <span><i class="fa-solid fa-basket-shopping me-2"></i>Shared Cart</span>
+              <span id="cart-count" class="badge bg-primary">0 items</span>
+            </div>
+            <div class="card-body p-0 cart-table-wrap">
+              <div id="cart-empty" class="empty-state">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <p>The cart is empty.<br />Add the first item!</p>
+              </div>
+              <table id="cart-table" class="table table-hover mb-0 d-none">
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th>Added by</th>
+                    <th class="text-center">Qty</th>
+                    <th class="text-end">Price</th>
+                    <th class="text-end">Subtotal</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="cart-tbody"></tbody>
+              </table>
+            </div>
+            <div class="card-footer d-flex justify-content-between align-items-center">
+              <div>
+                <button id="btn-clear-cart" class="btn btn-sm btn-outline-danger">
+                  <i class="fa-solid fa-trash me-1"></i>Clear All
+                </button>
+                <button id="btn-print-receipt" class="btn btn-sm btn-outline-success ms-2">
+                  <i class="fa-solid fa-receipt me-1"></i>Print Receipt
+                </button>
+              </div>
+              <div class="total-display">
+                Total: <strong id="cart-total">₹0.00</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Members + Activity Log -->
+        <div class="col-lg-5 d-flex flex-column">
+
+          <!-- Members -->
+          <div class="card mb-3">
+            <div class="card-header">
+              <i class="fa-solid fa-users me-2"></i>Members in Room
+            </div>
+            <div class="card-body py-2">
+              <div id="members-list" class="members-list"></div>
+            </div>
+          </div>
+
+          <!-- Activity Log -->
+          <div class="card flex-grow-1">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <span><i class="fa-solid fa-clock-rotate-left me-2"></i>Activity Log</span>
+              <button id="btn-clear-log" class="btn btn-sm btn-outline-secondary">Clear</button>
+            </div>
+            <div class="card-body p-0 log-wrap">
+              <div id="activity-log" class="activity-log"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PRINT RECEIPT (hidden, only shown on print) ===== -->
+  <div id="print-receipt" class="print-only">
+    <div class="receipt-header">
+      <h2><i class="fa-solid fa-cart-shopping"></i> CartShare</h2>
+      <p class="receipt-meta">
+        Room: <strong id="receipt-room"></strong> &nbsp;|&nbsp;
+        Date: <strong id="receipt-date"></strong>
+      </p>
+    </div>
+    <table class="receipt-table">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Added by</th>
+          <th>Qty</th>
+          <th>Unit Price</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody id="receipt-tbody"></tbody>
+      <tfoot>
+        <tr>
+          <td colspan="4" class="text-end"><strong>Grand Total</strong></td>
+          <td><strong id="receipt-total"></strong></td>
+        </tr>
+      </tfoot>
+    </table>
+    <div class="receipt-footer">
+      <p>Per-person summary</p>
+      <div id="receipt-split"></div>
+    </div>
+  </div>
+
+  <!-- Toast notification -->
+  <div id="toast-container" class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="app-toast" class="toast align-items-center border-0" role="alert">
+      <div class="d-flex">
+        <div id="toast-body" class="toast-body"></div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
